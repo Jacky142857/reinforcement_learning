@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Differential Sharpe Ratio
+============================================================
+
+Reward Function: Differential Sharpe Ratio
+PPO Return: -46.29%
+Buy & Hold Return: 23.22%
+Outperformance: -69.51%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $53,707.65
+Number of Training Episodes: 778
+Training Timesteps Used: 1,550,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -52.03%
+
+Average Training Return: 27.819990
+Training Return Std Dev: 29.835868

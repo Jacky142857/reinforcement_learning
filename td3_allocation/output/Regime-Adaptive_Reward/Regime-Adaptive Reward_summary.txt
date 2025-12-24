@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Regime-Adaptive Reward
+============================================================
+
+Reward Function: Regime-Adaptive Reward
+TD3 Return: 6.37%
+Buy & Hold Return: 23.22%
+Outperformance: -16.84%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $106,372.14
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 21
+
+Max Drawdown (TD3): -13.54%
+
+Average Training Return: 19.972690
+Training Return Std Dev: 11.161306

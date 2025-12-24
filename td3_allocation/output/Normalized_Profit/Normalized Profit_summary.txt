@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Normalized Profit
+============================================================
+
+Reward Function: Normalized Profit
+TD3 Return: 40.47%
+Buy & Hold Return: 23.22%
+Outperformance: 17.25%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $140,470.36
+Number of Training Episodes: 100
+Training Timesteps Used: 200,499
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -7.59%
+
+Average Training Return: 21.371750
+Training Return Std Dev: 23.623062

@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Log Return
+============================================================
+
+Reward Function: Log Return
+TD3 Return: 20.13%
+Buy & Hold Return: 23.22%
+Outperformance: -3.09%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $120,129.53
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -10.57%
+
+Average Training Return: 2.746496
+Training Return Std Dev: 1.124002

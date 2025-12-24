@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Calmar-like Reward
+============================================================
+
+Reward Function: Calmar-like Reward
+TD3 Return: 13.06%
+Buy & Hold Return: 23.22%
+Outperformance: -10.16%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $113,055.03
+Number of Training Episodes: 100
+Training Timesteps Used: 200,313
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -13.30%
+
+Average Training Return: 28.364209
+Training Return Std Dev: 14.227374

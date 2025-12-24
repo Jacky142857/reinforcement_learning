@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Risk-On Risk-Off Reward
+============================================================
+
+Reward Function: Risk-On Risk-Off Reward
+PPO Return: -33.44%
+Buy & Hold Return: 23.22%
+Outperformance: -56.66%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $66,558.00
+Number of Training Episodes: 1029
+Training Timesteps Used: 2,050,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -38.77%
+
+Average Training Return: 31.412106
+Training Return Std Dev: 3.245014

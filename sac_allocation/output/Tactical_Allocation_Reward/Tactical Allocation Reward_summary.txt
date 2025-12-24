@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Tactical Allocation Reward
+============================================================
+
+Reward Function: Tactical Allocation Reward
+SAC Return: 35.68%
+Buy & Hold Return: 23.22%
+Outperformance: 12.46%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $135,677.01
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -10.47%
+
+Average Training Return: 2.040679
+Training Return Std Dev: 1.494280

@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Risk-Adjusted by Concentration
+============================================================
+
+Reward Function: Risk-Adjusted by Concentration
+TD3 Return: 17.43%
+Buy & Hold Return: 23.22%
+Outperformance: -5.78%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $117,432.76
+Number of Training Episodes: 101
+Training Timesteps Used: 201,143
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -9.20%
+
+Average Training Return: 65.042486
+Training Return Std Dev: 47.210522

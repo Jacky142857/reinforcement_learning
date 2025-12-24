@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Dynamic Rebalancing Reward
+============================================================
+
+Reward Function: Dynamic Rebalancing Reward
+PPO Return: 14.23%
+Buy & Hold Return: 23.22%
+Outperformance: -8.99%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $114,225.52
+Number of Training Episodes: 778
+Training Timesteps Used: 1,550,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -15.26%
+
+Average Training Return: 37.789125
+Training Return Std Dev: 2.986386

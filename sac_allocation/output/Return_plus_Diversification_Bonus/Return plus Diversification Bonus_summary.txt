@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Return plus Diversification Bonus
+============================================================
+
+Reward Function: Return plus Diversification Bonus
+SAC Return: 26.04%
+Buy & Hold Return: 23.22%
+Outperformance: 2.82%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $126,039.79
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -7.75%
+
+Average Training Return: 14.460725
+Training Return Std Dev: 1.974711

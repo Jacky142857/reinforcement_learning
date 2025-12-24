@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Sharpe-like Reward
+============================================================
+
+Reward Function: Sharpe-like Reward
+SAC Return: 26.49%
+Buy & Hold Return: 23.22%
+Outperformance: 3.27%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $126,488.64
+Number of Training Episodes: 391
+Training Timesteps Used: 780,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -15.40%
+
+Average Training Return: 482.704912
+Training Return Std Dev: 419.839599

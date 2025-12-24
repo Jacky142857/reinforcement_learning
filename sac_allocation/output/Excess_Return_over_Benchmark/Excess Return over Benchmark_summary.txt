@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Excess Return over Benchmark
+============================================================
+
+Reward Function: Excess Return over Benchmark
+SAC Return: 41.93%
+Buy & Hold Return: 23.22%
+Outperformance: 18.72%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $141,933.28
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -9.32%
+
+Average Training Return: 0.133292
+Training Return Std Dev: 0.397665

@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Calmar-like Reward
+============================================================
+
+Reward Function: Calmar-like Reward
+PPO Return: 28.62%
+Buy & Hold Return: 23.22%
+Outperformance: 5.40%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $128,619.42
+Number of Training Episodes: 853
+Training Timesteps Used: 1,700,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -17.97%
+
+Average Training Return: 14.431750
+Training Return Std Dev: 3.907933

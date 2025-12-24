@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Risk-Adjusted by Concentration
+============================================================
+
+Reward Function: Risk-Adjusted by Concentration
+PPO Return: 23.91%
+Buy & Hold Return: 23.22%
+Outperformance: 0.70%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $123,914.57
+Number of Training Episodes: 778
+Training Timesteps Used: 1,550,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -15.85%
+
+Average Training Return: 8.291493
+Training Return Std Dev: 3.444719

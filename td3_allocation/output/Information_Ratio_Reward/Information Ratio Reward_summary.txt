@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Information Ratio Reward
+============================================================
+
+Reward Function: Information Ratio Reward
+TD3 Return: 14.96%
+Buy & Hold Return: 23.22%
+Outperformance: -8.26%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $114,955.75
+Number of Training Episodes: 101
+Training Timesteps Used: 201,666
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -9.74%
+
+Average Training Return: 300.801409
+Training Return Std Dev: 163.911836

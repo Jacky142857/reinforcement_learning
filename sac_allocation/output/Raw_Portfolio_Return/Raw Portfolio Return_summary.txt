@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Raw Portfolio Return
+============================================================
+
+Reward Function: Raw Portfolio Return
+SAC Return: 37.50%
+Buy & Hold Return: 23.22%
+Outperformance: 14.29%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $137,502.40
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -8.78%
+
+Average Training Return: 1.286289
+Training Return Std Dev: 0.451396

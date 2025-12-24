@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Dynamic Rebalancing Reward
+============================================================
+
+Reward Function: Dynamic Rebalancing Reward
+SAC Return: 20.99%
+Buy & Hold Return: 23.22%
+Outperformance: -2.22%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $120,994.24
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -10.68%
+
+Average Training Return: 35.585720
+Training Return Std Dev: 6.050084

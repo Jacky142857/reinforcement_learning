@@ -1,0 +1,1086 @@
+import math
+import random
+from collections import deque
+
+import numpy as np
+import pandas as pd
+import torch
+import gymnasium as gym
+from gymnasium import spaces
+import matplotlib.pyplot as plt
+from pathlib import Path
+import warnings
+
+warnings.filterwarnings("ignore")
+
+# Stable Baselines3 imports
+from stable_baselines3 import TD3
+from stable_baselines3.common.callbacks import (
+    BaseCallback,
+    EvalCallback,
+    StopTrainingOnNoModelImprovement,
+)
+from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.monitor import Monitor
+from stable_baselines3.common.noise import NormalActionNoise
+
+# Import reward base class
+from reward_functions import RewardFunction
+
+SEED = 42
+
+
+def set_global_seed(seed: int) -> None:
+    """Seed all relevant RNGs for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+    torch.use_deterministic_algorithms(True, warn_only=True)
+    torch.backends.cudnn.benchmark = False
+
+
+set_global_seed(SEED)
+
+WARMUP_STEPS = 20
+MIN_TRAINING_TIMESTEPS = 200_000
+MAX_TRAINING_TIMESTEPS = 2_000_000
+EVAL_FREQUENCY = 20_000
+EVAL_N_EPISODES = 5
+NO_IMPROVEMENT_PATIENCE = 10
+MAX_SAVED_LOG_TIMESTEPS = 100
+LOSS_VARIANCE_WINDOW = 50
+LOSS_VARIANCE_VARIANCE_THRESHOLD = 5e-4
+LOSS_VARIANCE_CRITIC_THRESHOLD = 1e-6
+LOSS_VARIANCE_REQUIRED_WINDOWS = 3
+
+
+class ReturnPlusDiversificationBonusVary(RewardFunction):
+    """Return plus diversification bonus with stronger diversification pressure."""
+
+    def __init__(self, bonus_scale: float = 0.05):
+        super().__init__("Return plus Diversification Bonus")
+        self.bonus_scale = bonus_scale
+
+    def compute(self, portfolio_simple_return, stock_allocations, num_stocks, **kwargs):
+        entropy = -np.sum(stock_allocations * np.log(stock_allocations + 1e-8))
+        max_entropy = np.log(num_stocks)
+        normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
+        diversification_bonus = self.bonus_scale * normalized_entropy
+        return portfolio_simple_return + diversification_bonus
+
+
+class PortfolioGymEnvVary(gym.Env):
+    """Portfolio environment with tightened action bounds to discourage saturation."""
+
+    metadata = {"render.modes": []}
+
+    def __init__(self, stock_data_dict, reward_function, initial_balance=100000, risk_free_rate=0.03, seed=SEED):
+        super().__init__()
+
+        self.stock_data_dict = stock_data_dict
+        self.stock_symbols = list(stock_data_dict.keys())
+        self.num_stocks = len(self.stock_symbols)
+        self.initial_balance = initial_balance
+        self.risk_free_rate = risk_free_rate
+        self.reward_function = reward_function
+        self.seed = seed
+
+        # Pre-compute features for each stock
+        self.features_dict = {}
+        for symbol, data in stock_data_dict.items():
+            self.features_dict[symbol] = self._calculate_features(data)
+
+        current_features_size = self.num_stocks * 5
+        additional_size = self.num_stocks + 3
+        self.observation_space = spaces.Box(
+            low=-np.inf,
+            high=np.inf,
+            shape=(current_features_size + additional_size,),
+            dtype=np.float32,
+        )
+
+        # Shrink action range so TD3 cannot push logits to ±10 and collapse the softmax.
+        self.action_space = spaces.Box(
+            low=-2.0,
+            high=2.0,
+            shape=(self.num_stocks + 1,),
+            dtype=np.float32,
+        )
+
+        self.action_space.seed(self.seed)
+        self.observation_space.seed(self.seed)
+
+        self.reset(seed=self.seed)
+
+    def _calculate_features(self, data):
+        df = data.copy()
+        prices = df["Close"].values
+        simple_returns = df["Close"].pct_change().fillna(0).values
+
+        df["simple_ret"] = simple_returns
+        df["short_ma"] = df["Close"].rolling(10).mean()
+        df["med_ma"] = df["Close"].rolling(20).mean()
+        df["volatility"] = df["Close"].pct_change().rolling(20).std().fillna(0)
+        df["rsi"] = self._calculate_rsi(df["Close"], 14)
+
+        features = np.column_stack(
+            [
+                df["simple_ret"].values,
+                (df["Close"] / df["short_ma"] - 1).fillna(0).values,
+                (df["Close"] / df["med_ma"] - 1).fillna(0).values,
+                df["volatility"].values,
+                (df["rsi"].values - 50) / 50,
+            ]
+        )
+
+        return features
+
+    def _calculate_rsi(self, prices, window=14):
+        delta = prices.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
+        rs = gain / loss
+        rsi = 100 - (100 / (1 + rs))
+        return rsi.fillna(50)
+
+    def reset(self, seed=None, options=None):
+        if seed is None:
+            seed = self.seed
+        else:
+            self.seed = seed
+
+        super().reset(seed=seed)
+
+        min_data_len = min(len(df) for df in self.stock_data_dict.values())
+        self.num_steps = min_data_len
+
+        if self.num_steps <= WARMUP_STEPS:
+            raise ValueError(f"Insufficient data: num_steps={self.num_steps}")
+
+        self.current_step = WARMUP_STEPS
+        self.portfolio_value = self.initial_balance
+        self.cash_allocation = 1.0
+        self.stock_allocations = np.zeros(self.num_stocks)
+
+        self.reward_function.reset()
+
+        return self._get_state(), {}
+
+    def _get_state(self):
+        if self.current_step >= self.num_steps:
+            state_size = self.num_stocks * 5 + self.num_stocks + 3
+            return np.zeros(state_size, dtype=np.float32)
+
+        current_features = []
+        for symbol in self.stock_symbols:
+            features_at_t = self.features_dict[symbol][self.current_step, :]
+            current_features.extend(features_at_t)
+
+        additional_features = np.concatenate(
+            [
+                self.stock_allocations,
+                [self.cash_allocation],
+                [np.sum(self.stock_allocations)],
+                [self.portfolio_value / self.initial_balance],
+            ]
+        )
+
+        final_state = np.concatenate([current_features, additional_features])
+        return np.nan_to_num(final_state, 0).astype(np.float32)
+
+    def step(self, action):
+        if self.current_step >= self.num_steps - 1:
+            return self._get_state(), 0, True, False, {}
+
+        shifted = action - np.max(action)
+        exp_action = np.exp(shifted)
+        allocation_weights = exp_action / np.clip(exp_action.sum(), 1e-8, None)
+
+        new_stock_allocations = allocation_weights[: self.num_stocks]
+        new_cash_allocation = allocation_weights[self.num_stocks]
+
+        allocation_changes = np.abs(new_stock_allocations - self.stock_allocations).sum()
+        allocation_changes += np.abs(new_cash_allocation - self.cash_allocation)
+
+        prev_portfolio_value = self.portfolio_value
+
+        self.stock_allocations = new_stock_allocations.copy()
+        self.cash_allocation = new_cash_allocation
+
+        self.current_step += 1
+
+        if self.current_step < self.num_steps:
+            daily_risk_free_rate = (1 + self.risk_free_rate) ** (1 / 252) - 1
+            cash_return = daily_risk_free_rate
+
+            stock_simple_returns = np.array(
+                [self.features_dict[symbol][self.current_step, 0] for symbol in self.stock_symbols]
+            )
+
+            portfolio_simple_return = self.cash_allocation * cash_return + np.sum(
+                self.stock_allocations * stock_simple_returns
+            )
+
+            self.portfolio_value *= 1 + portfolio_simple_return
+
+            reward = self.reward_function.compute(
+                portfolio_simple_return=portfolio_simple_return,
+                portfolio_value=self.portfolio_value,
+                prev_portfolio_value=prev_portfolio_value,
+                initial_balance=self.initial_balance,
+                stock_allocations=self.stock_allocations,
+                cash_allocation=self.cash_allocation,
+                stock_simple_returns=stock_simple_returns,
+                allocation_changes=allocation_changes,
+                num_stocks=self.num_stocks,
+            )
+        else:
+            reward = 0
+            portfolio_simple_return = 0
+
+        done = self.current_step >= self.num_steps - 1
+        truncated = False
+        info = {
+            "portfolio_value": self.portfolio_value,
+            "allocations": allocation_weights,
+            "return": portfolio_simple_return,
+            "allocation_changes": allocation_changes,
+        }
+
+        return self._get_state(), reward, done, truncated, info
+
+
+class PortfolioCallback(BaseCallback):
+    """Callback to track portfolio performance during training."""
+
+    def __init__(self, verbose=0):
+        super().__init__(verbose)
+        self.episode_returns = []
+        self.episode_lengths = []
+        self.episode_count = 0
+        self.current_episode_return = 0
+        self.current_episode_length = 0
+
+    def _on_step(self):
+        if len(self.locals.get("rewards", [])) > 0:
+            self.current_episode_return += self.locals["rewards"][0]
+            self.current_episode_length += 1
+
+        if len(self.locals.get("dones", [])) > 0 and self.locals["dones"][0]:
+            self.episode_returns.append(self.current_episode_return)
+            self.episode_lengths.append(self.current_episode_length)
+            self.episode_count += 1
+
+            if self.episode_count % 10 == 0:
+                avg_return = np.mean(self.episode_returns[-10:])
+                print(
+                    f"Episode {self.episode_count}: "
+                    f"Return={self.current_episode_return:.6f}, "
+                    f"Avg Return (last 10): {avg_return:.6f}"
+                )
+
+            self.current_episode_return = 0
+            self.current_episode_length = 0
+
+        return True
+
+
+class LossLoggingCallback(BaseCallback):
+    """Callback that records loss metrics to a text file during training."""
+
+    _POLICY_KEYS = ("train/policy_gradient_loss", "train/policy_loss", "train/actor_loss")
+    _VALUE_KEYS = ("train/value_loss", "train/qf_loss", "train/critic_loss")
+    _ENTROPY_KEYS = ("train/entropy_loss", "train/entropy")
+    _TOTAL_KEYS = ("train/loss",)
+
+    def __init__(self, log_path, max_records=MAX_SAVED_LOG_TIMESTEPS, total_timesteps=None, verbose=0):
+        super().__init__(verbose)
+        self.log_path = Path(log_path)
+        self.records = []
+        self.max_records = max_records
+        self.total_timesteps = total_timesteps
+        self._record_interval = None
+        if self.max_records:
+            if self.total_timesteps:
+                self._record_interval = max(1, self.total_timesteps // self.max_records)
+            else:
+                self._record_interval = None
+
+    def _maybe_to_float(self, value):
+        if value is None:
+            return None
+        if isinstance(value, (list, tuple)):
+            if not value:
+                return None
+            value = value[-1]
+        if hasattr(value, "item"):
+            try:
+                value = value.item()
+            except Exception:
+                pass
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    def _fetch_from_log_dict(self, log_dict, keys):
+        for key in keys:
+            if key in log_dict:
+                val = self._maybe_to_float(log_dict[key])
+                if val is not None:
+                    return val
+        return None
+
+    def _append_record(self, step, policy_loss, value_loss, entropy_loss, total_loss, force=False):
+        step = int(step)
+        record = (step, policy_loss, value_loss, entropy_loss, total_loss)
+
+        if self.records and self.records[-1][0] == step:
+            self.records[-1] = record
+            return
+
+        if not force and self.max_records is not None:
+            if self._record_interval:
+                if self.records:
+                    last_step = self.records[-1][0]
+                    if step - last_step < self._record_interval:
+                        return
+                if len(self.records) >= self.max_records:
+                    return
+            elif len(self.records) >= self.max_records:
+                return
+
+        if force and self.max_records is not None and len(self.records) >= self.max_records:
+            self.records[-1] = record
+        else:
+            self.records.append(record)
+
+    def _value_to_str(self, value):
+        if value is None:
+            return "nan"
+        if isinstance(value, float) and math.isnan(value):
+            return "nan"
+        return f"{value:.10f}"
+
+    def _write_records(self):
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        header = "timesteps,policy_loss(actor_loss),value_loss(critic_loss),entropy_loss,total_loss"
+        with open(self.log_path, "w") as f:
+            f.write(header + "\n")
+            for step, policy_loss, value_loss, entropy_loss, total_loss in self.records:
+                f.write(
+                    f"{step},"
+                    f"{self._value_to_str(policy_loss)},"
+                    f"{self._value_to_str(value_loss)},"
+                    f"{self._value_to_str(entropy_loss)},"
+                    f"{self._value_to_str(total_loss)}\n"
+                )
+
+    def _ensure_final_record(self, log_dict):
+        policy_loss = self._fetch_from_log_dict(log_dict, self._POLICY_KEYS)
+        value_loss = self._fetch_from_log_dict(log_dict, self._VALUE_KEYS)
+        entropy_loss = self._fetch_from_log_dict(log_dict, self._ENTROPY_KEYS)
+        total_loss = self._fetch_from_log_dict(log_dict, self._TOTAL_KEYS)
+        if total_loss is None and all(v is not None for v in (policy_loss, value_loss, entropy_loss)):
+            total_loss = policy_loss + value_loss + entropy_loss
+
+        if any(v is not None for v in (policy_loss, value_loss, entropy_loss, total_loss)):
+            self._append_record(self.num_timesteps, policy_loss, value_loss, entropy_loss, total_loss, force=True)
+
+    def _on_step(self):
+        log_dict = getattr(self.model.logger, "name_to_value", None)
+        if not log_dict:
+            return True
+
+        policy_loss = self._fetch_from_log_dict(log_dict, self._POLICY_KEYS)
+        value_loss = self._fetch_from_log_dict(log_dict, self._VALUE_KEYS)
+        entropy_loss = self._fetch_from_log_dict(log_dict, self._ENTROPY_KEYS)
+        total_loss = self._fetch_from_log_dict(log_dict, self._TOTAL_KEYS)
+
+        if policy_loss is None and value_loss is None and entropy_loss is None and total_loss is None:
+            return True
+
+        if total_loss is None and all(v is not None for v in (policy_loss, value_loss, entropy_loss)):
+            total_loss = policy_loss + value_loss + entropy_loss
+
+        self._append_record(self.num_timesteps, policy_loss, value_loss, entropy_loss, total_loss)
+        return True
+
+    def _on_training_end(self):
+        log_dict = getattr(self.model.logger, "name_to_value", None) or {}
+        if not self.records:
+            self._ensure_final_record(log_dict)
+        elif log_dict:
+            self._ensure_final_record(log_dict)
+
+        if not self.records:
+            self._append_record(0, None, None, None, None, force=True)
+
+        self._write_records()
+
+
+class LossVarianceEarlyStopCallback(BaseCallback):
+    """Stop training once the actor/critic losses become numerically stable."""
+
+    def __init__(
+        self,
+        window_size=LOSS_VARIANCE_WINDOW,
+        actor_variance_threshold=LOSS_VARIANCE_VARIANCE_THRESHOLD,
+        critic_variance_threshold=LOSS_VARIANCE_CRITIC_THRESHOLD,
+        required_stable_windows=LOSS_VARIANCE_REQUIRED_WINDOWS,
+        min_timesteps=MIN_TRAINING_TIMESTEPS,
+        verbose=0,
+    ):
+        super().__init__(verbose)
+        self.window_size = window_size
+        self.actor_variance_threshold = actor_variance_threshold
+        self.critic_variance_threshold = critic_variance_threshold
+        self.required_stable_windows = required_stable_windows
+        self.min_timesteps = min_timesteps
+        self._actor_losses = deque(maxlen=window_size)
+        self._critic_losses = deque(maxlen=window_size)
+        self._stable_step_count = 0
+        self._last_reported_windows = 0
+
+    def _maybe_to_float(self, value):
+        if value is None:
+            return None
+        if isinstance(value, (list, tuple)):
+            if not value:
+                return None
+            value = value[-1]
+        if hasattr(value, "item"):
+            try:
+                value = value.item()
+            except Exception:
+                pass
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    def _fetch_from_log_dict(self, log_dict, keys):
+        for key in keys:
+            if key in log_dict:
+                val = self._maybe_to_float(log_dict[key])
+                if val is not None:
+                    return val
+        return None
+
+    def _on_training_start(self):
+        self._actor_losses.clear()
+        self._critic_losses.clear()
+        self._stable_step_count = 0
+        self._last_reported_windows = 0
+
+    def _on_step(self):
+        log_dict = getattr(self.model.logger, "name_to_value", None)
+        if not log_dict:
+            return True
+
+        actor_loss = self._fetch_from_log_dict(log_dict, LossLoggingCallback._POLICY_KEYS)
+        critic_loss = self._fetch_from_log_dict(log_dict, LossLoggingCallback._VALUE_KEYS)
+
+        if actor_loss is not None:
+            self._actor_losses.append(actor_loss)
+        if critic_loss is not None:
+            self._critic_losses.append(critic_loss)
+
+        if len(self._actor_losses) < self.window_size or len(self._critic_losses) < self.window_size:
+            return True
+        if self.num_timesteps < self.min_timesteps:
+            return True
+
+        actor_variance = float(np.var(self._actor_losses))
+        critic_variance = float(np.var(self._critic_losses))
+
+        condition_met = (
+            actor_variance <= self.actor_variance_threshold
+            and critic_variance <= self.critic_variance_threshold
+        )
+
+        if condition_met:
+            self._stable_step_count += 1
+            current_windows = self._stable_step_count // self.window_size
+            if current_windows > self._last_reported_windows and self.verbose > 0:
+                self._last_reported_windows = current_windows
+                print(
+                    f"LossVarianceEarlyStopCallback: stable window "
+                    f"{current_windows}/{self.required_stable_windows} "
+                    f"(actor_var={actor_variance:.2e}, critic_var={critic_variance:.2e})"
+                )
+            self.logger.record("train/loss_variance_actor", actor_variance)
+            self.logger.record("train/loss_variance_critic", critic_variance)
+        else:
+            self._stable_step_count = 0
+            self._last_reported_windows = 0
+
+        if (self._stable_step_count // self.window_size) >= self.required_stable_windows:
+            if self.verbose > 0:
+                print("LossVarianceEarlyStopCallback: stopping training due to sustained low loss variance.")
+            self.model.stop_training = True
+            return False
+
+        return True
+
+
+def prepare_data(df):
+    """Prepare stock data with forward-fill only."""
+    df = df.copy()
+    df["Date"] = pd.to_datetime(df["Date"], utc=True)
+    df = df.sort_values("Date").reset_index(drop=True)
+
+    required_columns = ["Open", "High", "Low", "Close", "Volume"]
+    for col in required_columns:
+        if col not in df.columns:
+            df[col] = df["Close"] if "Close" in df.columns else df.iloc[:, 1]
+
+    for col in required_columns:
+        if df[col].isnull().any():
+            df[col] = df[col].ffill()
+
+    initial_nans = df[required_columns].isnull().any(axis=1)
+    if initial_nans.any():
+        first_valid_idx = (~initial_nans).idxmax()
+        df = df.loc[first_valid_idx:].reset_index(drop=True)
+
+    return df
+
+
+def load_all_stock_data(stock_symbols):
+    """Load all stock data from the shared stock_data directory."""
+    stock_data_dict = {}
+
+    script_dir = Path(__file__).parent
+    root_dir = script_dir.parent
+    stock_data_dir = root_dir / "stock_data"
+
+    for symbol in stock_symbols:
+        file_path = stock_data_dir / f"{symbol}_data.csv"
+        try:
+            data_df = pd.read_csv(file_path)
+            data_df["Date"] = pd.to_datetime(data_df["Date"], utc=True)
+            data_df = data_df.sort_values("Date").reset_index(drop=True)
+            stock_data_dict[symbol] = data_df
+            print(f"Loaded {symbol}: {len(data_df)} rows")
+        except FileNotFoundError:
+            print(f"Error: {file_path} not found.")
+        except Exception as exc:
+            print(f"Error loading {symbol}: {exc}")
+
+    return stock_data_dict
+
+
+def calculate_buy_hold_return(stock_data_dict):
+    """Calculate buy and hold return for equal weight portfolio."""
+    if not stock_data_dict:
+        return 0.0
+
+    equal_weight = 1.0 / len(stock_data_dict)
+    stock_returns = []
+    for data in stock_data_dict.values():
+        if len(data) > 1:
+            start_price = data.iloc[0]["Close"]
+            end_price = data.iloc[-1]["Close"]
+            if start_price > 0:
+                stock_returns.append((end_price - start_price) / start_price)
+
+    if not stock_returns:
+        return 0.0
+
+    portfolio_simple_return = sum(equal_weight * ret for ret in stock_returns)
+    return portfolio_simple_return * 100
+
+
+def calculate_max_drawdown(values):
+    """Calculate maximum drawdown percentage for a series of values."""
+    if not values:
+        return 0.0
+
+    values_array = np.array(values, dtype=float)
+    running_max = np.maximum.accumulate(values_array)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        drawdowns = np.where(running_max > 0, (values_array - running_max) / running_max, 0.0)
+    max_drawdown = drawdowns.min() if drawdowns.size > 0 else 0.0
+    return max_drawdown * 100.0
+
+
+def train_td3_portfolio_vary(stock_data_dict, reward_function, max_timesteps=MAX_TRAINING_TIMESTEPS,
+                             split_ratio=0.8, seed=SEED, loss_log_path=None):
+    """Train TD3 agent with the diversified action configuration."""
+    train_data_dict = {}
+    test_data_dict = {}
+
+    print(f"\nSplitting data: {split_ratio * 100:.0f}% training, {(1 - split_ratio) * 100:.0f}% testing")
+    print("-" * 60)
+
+    for symbol, data in stock_data_dict.items():
+        split_idx = int(len(data) * split_ratio)
+        train_raw = data[:split_idx].reset_index(drop=True)
+        test_raw = data[split_idx:].reset_index(drop=True)
+
+        train_data_dict[symbol] = prepare_data(train_raw)
+        test_data_dict[symbol] = prepare_data(test_raw)
+
+        print(
+            f"{symbol}: {len(data)} total → "
+            f"{len(train_data_dict[symbol])} train, {len(test_data_dict[symbol])} test"
+        )
+
+    def make_env():
+        env = PortfolioGymEnvVary(train_data_dict, reward_function, seed=seed)
+        env = Monitor(env)
+        return env
+
+    train_env = DummyVecEnv([make_env])
+    train_env.seed(seed)
+    train_env.reset()
+
+    def make_eval_env():
+        eval_seed = seed + 10_000
+        env = PortfolioGymEnvVary(train_data_dict, reward_function, seed=eval_seed)
+        env = Monitor(env)
+        return env
+
+    eval_env = DummyVecEnv([make_eval_env])
+    eval_env.seed(seed + 10_000)
+    eval_env.reset()
+
+    if max_timesteps < MIN_TRAINING_TIMESTEPS:
+        raise ValueError(
+            f"max_timesteps ({max_timesteps}) must be >= MIN_TRAINING_TIMESTEPS ({MIN_TRAINING_TIMESTEPS})"
+        )
+
+    callback = PortfolioCallback()
+    loss_callback = LossLoggingCallback(loss_log_path, total_timesteps=max_timesteps) if loss_log_path else None
+    loss_stability_callback = LossVarianceEarlyStopCallback(verbose=1)
+
+    print(f"\nTraining with reward function: {reward_function.name} (vary configuration)")
+    print(f"Training timesteps: min={MIN_TRAINING_TIMESTEPS:,} max={max_timesteps:,}")
+    print(f"Early stopping patience (evals): {NO_IMPROVEMENT_PATIENCE}")
+    print(f"Evaluation frequency: every {EVAL_FREQUENCY:,} steps ({EVAL_N_EPISODES} episodes)")
+    print("-" * 60)
+
+    action_dim = train_env.action_space.shape[0]
+    action_noise = NormalActionNoise(
+        mean=np.zeros(action_dim, dtype=np.float32),
+        sigma=0.1 * np.ones(action_dim, dtype=np.float32),
+    )
+
+    model = TD3(
+        "MlpPolicy",
+        train_env,
+        learning_rate=1e-3,
+        buffer_size=200_000,
+        learning_starts=10_000,
+        batch_size=128,
+        tau=0.02,
+        gamma=0.99,
+        train_freq=(64, "step"),
+        gradient_steps=64,
+        action_noise=action_noise,
+        policy_delay=2,
+        target_noise_clip=0.5,
+        target_policy_noise=0.2,
+        verbose=1,
+        tensorboard_log="./td3_portfolio_tensorboard_vary/",
+        seed=seed,
+    )
+
+    min_evals_before_stop = max(1, math.ceil(MIN_TRAINING_TIMESTEPS / EVAL_FREQUENCY))
+    early_stop_callback = StopTrainingOnNoModelImprovement(
+        max_no_improvement_evals=NO_IMPROVEMENT_PATIENCE,
+        min_evals=min_evals_before_stop,
+        verbose=1,
+    )
+
+    eval_callback = EvalCallback(
+        eval_env,
+        eval_freq=EVAL_FREQUENCY,
+        n_eval_episodes=EVAL_N_EPISODES,
+        deterministic=True,
+        callback_after_eval=early_stop_callback,
+        verbose=1,
+    )
+
+    combined_callbacks = [callback, eval_callback, loss_stability_callback]
+    if loss_callback is not None:
+        combined_callbacks.append(loss_callback)
+
+    model.learn(total_timesteps=max_timesteps, callback=combined_callbacks, progress_bar=True)
+    training_timesteps = model.num_timesteps
+
+    train_buy_hold_return = calculate_buy_hold_return(train_data_dict)
+
+    return model, callback.episode_returns, test_data_dict, train_buy_hold_return, training_timesteps
+
+
+def test_td3_portfolio_vary(model, test_data_dict, reward_function, seed=SEED):
+    """Evaluate trained model on the test split."""
+    test_env = PortfolioGymEnvVary(test_data_dict, reward_function, seed=seed)
+
+    obs, _ = test_env.reset(seed=seed)
+    portfolio_values = [test_env.portfolio_value]
+    allocations_history = []
+    traded_stocks = set()
+
+    done = False
+    while not done:
+        action, _ = model.predict(obs, deterministic=True)
+        obs, reward, done, truncated, info = test_env.step(action)
+
+        portfolio_values.append(info["portfolio_value"])
+        allocations_history.append(
+            {"step": test_env.current_step, "cash": test_env.cash_allocation, "stocks": test_env.stock_allocations.copy()}
+        )
+
+        for idx, weight in enumerate(test_env.stock_allocations):
+            if weight > 1e-6:
+                traded_stocks.add(test_env.stock_symbols[idx])
+
+        if truncated:
+            break
+
+    return portfolio_values, allocations_history, list(test_data_dict.keys()), traded_stocks
+
+
+def plot_results_vary(results, reward_name, output_dir):
+    """Plot results with *_vary suffixes."""
+    plots_dir = output_dir / "plots_vary"
+    plots_dir.mkdir(exist_ok=True)
+
+    buy_hold_values = None
+    if "test_data_dict" in results:
+        test_data_dict = results["test_data_dict"]
+        warmup = results.get("warmup", WARMUP_STEPS)
+        equal_weight = 1.0 / len(test_data_dict) if test_data_dict else 0.0
+
+        initial_value = results["portfolio_values"][0]
+        buy_hold_values = [initial_value]
+
+        for t in range(1, len(results["portfolio_values"])):
+            dataset_idx_prev = warmup + t - 1
+            dataset_idx_curr = warmup + t
+
+            step_portfolio_return = 0.0
+            for _, data in test_data_dict.items():
+                if dataset_idx_curr >= len(data) or dataset_idx_prev >= len(data):
+                    continue
+
+                prev_price = data.iloc[dataset_idx_prev]["Close"]
+                curr_price = data.iloc[dataset_idx_curr]["Close"]
+
+                if prev_price > 0:
+                    stock_return = (curr_price - prev_price) / prev_price
+                else:
+                    stock_return = 0.0
+
+                step_portfolio_return += equal_weight * stock_return
+
+            new_value = buy_hold_values[-1] * (1 + step_portfolio_return)
+            buy_hold_values.append(new_value)
+
+    # Plot 1: Training returns
+    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+
+    if len(results["training_returns"]) > 0:
+        episodes = range(1, len(results["training_returns"]) + 1)
+        ax.plot(episodes, results["training_returns"], alpha=0.3, color="lightblue", label="Episode Returns")
+
+        if len(results["training_returns"]) > 20:
+            window = min(50, len(results["training_returns"]) // 10)
+            rolling_returns = pd.Series(results["training_returns"]).rolling(window).mean()
+            ax.plot(episodes, rolling_returns, color="blue", linewidth=2, label=f"Rolling Mean ({window})")
+
+        ax.set_xlabel("Episode")
+        ax.set_ylabel("Return")
+        ax.set_title(f"Training Returns\n({reward_name} - vary)")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+    else:
+        ax.text(0.5, 0.5, "No training returns recorded.", ha="center", va="center")
+
+    plt.tight_layout()
+    plt.savefig(plots_dir / "1_training_returns_vary.png", dpi=150, bbox_inches="tight")
+    plt.close()
+
+    # Plot 2: Portfolio value vs buy & hold
+    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+    steps = range(len(results["portfolio_values"]))
+    ax.plot(steps, results["portfolio_values"], color="green", linewidth=2.5, label="TD3 Agent")
+
+    if buy_hold_values is not None:
+        ax.plot(range(len(buy_hold_values)), buy_hold_values, color="orange", linewidth=2.5, linestyle="--",
+                label="Buy & Hold (Equal Weight)")
+
+    ax.set_title(f"Portfolio Performance - Testing\n({reward_name} - vary)")
+    ax.set_xlabel("Time Steps")
+    ax.set_ylabel("Portfolio Value ($)")
+    ax.legend(loc="best")
+    ax.grid(True, alpha=0.3)
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"${x:,.0f}"))
+
+    plt.tight_layout()
+    plt.savefig(plots_dir / "2_portfolio_comparison_vary.png", dpi=150, bbox_inches="tight")
+    plt.close()
+
+    # Plot 3: Allocations
+    fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+
+    if results["allocations_history"]:
+        steps = [a["step"] for a in results["allocations_history"]]
+        cash = [a["cash"] for a in results["allocations_history"]]
+        stocks = np.array([a["stocks"] for a in results["allocations_history"]])
+
+        stock_symbols = results.get("stock_symbols", [f"Stock {i+1}" for i in range(stocks.shape[1])])
+        labels = ["Cash"] + stock_symbols
+
+        ax.stackplot(steps, cash, *stocks.T, labels=labels, alpha=0.7)
+        ax.set_title(f"Portfolio Allocation Over Time\n({reward_name} - vary)")
+        ax.set_xlabel("Time Step")
+        ax.set_ylabel("Allocation Weight")
+        ax.set_ylim(0, 1)
+        ax.legend(loc="center left", bbox_to_anchor=(1, 0.5), fontsize=8)
+        ax.grid(True, alpha=0.3)
+    else:
+        ax.text(0.5, 0.5, "No allocation history available.", ha="center", va="center")
+
+    plt.tight_layout()
+    plt.savefig(plots_dir / "3_allocations_vary.png", dpi=150, bbox_inches="tight")
+    plt.close()
+
+    # Plot 4: Performance comparison
+    fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+    categories = ["Buy & Hold\n(Test)", "TD3 Agent\n(Test)"]
+    returns = [results["test_buy_hold_return"], results["total_return"]]
+    colors = ["orange", "green"]
+
+    bars = ax.bar(categories, returns, color=colors, alpha=0.7, edgecolor="black", linewidth=2)
+    ax.set_title(f"Performance Comparison\n({reward_name} - vary)")
+    ax.set_ylabel("Return (%)")
+    ax.axhline(y=0, color="black", linestyle="-", linewidth=0.8)
+    ax.grid(True, alpha=0.3, axis="y")
+
+    for idx, value in enumerate(returns):
+        height = bars[idx].get_height()
+        ax.text(
+            bars[idx].get_x() + bars[idx].get_width() / 2.0,
+            height + (1 if height >= 0 else -2),
+            f"{value:.2f}%",
+            ha="center",
+            va="bottom" if height >= 0 else "top",
+            fontweight="bold",
+        )
+
+    outperformance = results["total_return"] - results["test_buy_hold_return"]
+    color = "green" if outperformance > 0 else "red"
+    ax.text(
+        0.5,
+        0.02,
+        f"Outperformance: {outperformance:+.2f}%",
+        transform=ax.transAxes,
+        ha="center",
+        fontsize=12,
+        fontweight="bold",
+        color=color,
+        bbox=dict(boxstyle="round", facecolor="white", alpha=0.8),
+    )
+
+    plt.tight_layout()
+    plt.savefig(plots_dir / "4_performance_bars_vary.png", dpi=150, bbox_inches="tight")
+    plt.close()
+
+    # Plot 5: TD3 agent only
+    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
+    steps = range(len(results["portfolio_values"]))
+    ax.plot(steps, results["portfolio_values"], color="green", linewidth=2.5, label="TD3 Agent")
+
+    initial_value = results["portfolio_values"][0]
+    final_value = results["portfolio_values"][-1]
+    pct_return = results["total_return"]
+
+    stats_text = f"Initial: ${initial_value:,.0f}\nFinal: ${final_value:,.0f}\nReturn: {pct_return:.2f}%"
+    ax.text(
+        0.02,
+        0.98,
+        stats_text,
+        transform=ax.transAxes,
+        fontsize=11,
+        verticalalignment="top",
+        bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8),
+    )
+
+    ax.set_title(f"TD3 Agent Performance - Testing\n({reward_name} - vary)")
+    ax.set_xlabel("Time Steps")
+    ax.set_ylabel("Portfolio Value ($)")
+    ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(plots_dir / "5_td3_performance_vary.png", dpi=150, bbox_inches="tight")
+    plt.close()
+
+
+def save_results_summary_vary(results, reward_name, output_dir):
+    """Save a textual summary with *_vary suffix."""
+    summary_path = output_dir / f"{reward_name}_summary_vary.txt"
+    with open(summary_path, "w") as f:
+        f.write("=" * 60 + "\n")
+        f.write(f"RESULTS SUMMARY: {reward_name} (vary)\n")
+        f.write("=" * 60 + "\n\n")
+
+        f.write(f"Reward Function: {reward_name}\n")
+        f.write(f"TD3 Return: {results['total_return']:.2f}%\n")
+        f.write(f"Buy & Hold Return: {results['test_buy_hold_return']:.2f}%\n")
+        outperf = results["total_return"] - results["test_buy_hold_return"]
+        f.write(f"Outperformance: {outperf:.2f}%\n\n")
+
+        initial_value = results["portfolio_values"][0]
+        final_value = results["portfolio_values"][-1]
+        f.write(f"Initial Portfolio Value: ${initial_value:,.2f}\n")
+        f.write(f"Final Portfolio Value: ${final_value:,.2f}\n")
+
+        f.write(f"Training Timesteps Used: {results['training_timesteps']:,}\n")
+        f.write(f"Warmup Steps (no trading): {results.get('warmup', WARMUP_STEPS)}\n")
+        trading_steps = max(0, len(results["portfolio_values"]) - 1)
+        f.write(f"Trading Steps Evaluated: {trading_steps}\n")
+        f.write(f"Stocks Not Traded (Testing): {results.get('untraded_stock_count', 0)}\n\n")
+
+        max_drawdown_pct = calculate_max_drawdown(results.get("portfolio_values", []))
+        f.write(f"Max Drawdown (TD3): {max_drawdown_pct:.2f}%\n\n")
+
+        if len(results["training_returns"]) > 0:
+            f.write(f"Average Training Return: {np.mean(results['training_returns']):.6f}\n")
+            f.write(f"Training Return Std Dev: {np.std(results['training_returns']):.6f}\n")
+
+    print(f"📝 Summary saved as: {summary_path}")
+
+
+def run_experiment_vary(stock_data_dict, reward_function, output_dir,
+                        max_timesteps=MAX_TRAINING_TIMESTEPS, seed=SEED):
+    """Run the full training/testing cycle for the vary configuration."""
+    print("\n" + "=" * 80)
+    print(f"RUNNING EXPERIMENT (vary): {reward_function.name}")
+    print("=" * 80)
+
+    set_global_seed(seed)
+
+    base_name = reward_function.name.replace(" ", "_").replace("/", "_")
+    reward_dir = output_dir / f"{base_name}_vary"
+    reward_dir.mkdir(parents=True, exist_ok=True)
+    loss_log_path = reward_dir / "training_losses_vary.txt"
+
+    model, training_returns, test_data_dict, train_bh, train_timesteps = train_td3_portfolio_vary(
+        stock_data_dict,
+        reward_function,
+        max_timesteps=max_timesteps,
+        split_ratio=0.8,
+        seed=seed,
+        loss_log_path=loss_log_path,
+    )
+
+    print(f"\nTesting model for {reward_function.name} (vary)...")
+    portfolio_values, allocations, stock_symbols, traded_stocks = test_td3_portfolio_vary(
+        model,
+        test_data_dict,
+        reward_function,
+        seed=seed,
+    )
+
+    warmup = WARMUP_STEPS
+    initial_value = portfolio_values[0]
+    final_value = portfolio_values[-1]
+    total_return = (final_value - initial_value) / initial_value * 100
+
+    equal_weight = 1.0 / len(test_data_dict) if test_data_dict else 0.0
+    bh_value = initial_value
+    bh_values = [bh_value]
+
+    for t in range(1, len(portfolio_values)):
+        dataset_idx_prev = warmup + t - 1
+        dataset_idx_curr = warmup + t
+
+        step_return = 0.0
+        for _, data in test_data_dict.items():
+            if dataset_idx_curr >= len(data) or dataset_idx_prev >= len(data):
+                continue
+
+            prev_p = data.iloc[dataset_idx_prev]["Close"]
+            curr_p = data.iloc[dataset_idx_curr]["Close"]
+
+            if prev_p > 0:
+                step_return += equal_weight * ((curr_p - prev_p) / prev_p)
+
+        bh_value = bh_value * (1 + step_return)
+        bh_values.append(bh_value)
+
+    final_bh_value = bh_values[-1]
+    bh_return_pct = (final_bh_value - bh_values[0]) / bh_values[0] * 100.0
+    stock_symbols_set = set(stock_symbols)
+    untraded_stocks = sorted(stock_symbols_set - traded_stocks)
+
+    results = {
+        "training_returns": training_returns,
+        "portfolio_values": portfolio_values,
+        "allocations_history": allocations,
+        "training_timesteps": train_timesteps,
+        "total_return": total_return,
+        "test_buy_hold_return": bh_return_pct,
+        "train_buy_hold_return": train_bh,
+        "test_data_dict": test_data_dict,
+        "stock_symbols": stock_symbols,
+        "warmup": warmup,
+        "traded_stocks": sorted(traded_stocks),
+        "untraded_stocks": untraded_stocks,
+        "untraded_stock_count": len(untraded_stocks),
+    }
+
+    print(f"\nResults for {reward_function.name} (vary):")
+    print(f"  TD3 Return: {total_return:.2f}%")
+    print(f"  Buy & Hold: {bh_return_pct:.2f}%")
+    print(f"  Outperformance: {total_return - bh_return_pct:.2f}%")
+
+    plot_results_vary(results, reward_function.name, reward_dir)
+    save_results_summary_vary(results, reward_function.name, reward_dir)
+
+    model_path = reward_dir / "model_vary"
+    model.save(str(model_path))
+    print(f"💾 Model saved as: {model_path}.zip")
+
+    return results
+
+
+def main():
+    script_dir = Path(__file__).parent
+    output_dir = script_dir / "output"
+    output_dir.mkdir(exist_ok=True)
+    print(f"\n📁 Output directory: {output_dir.absolute()}")
+
+    stock_symbols = [
+        "AAPL", "AMGN", "AXP", "BA", "CAT", "CSCO", "CVX", "DIS",
+        "GS", "HD", "HON", "IBM", "INTC", "JNJ", "JPM", "KO",
+        "MCD", "MMM", "MRK", "MSFT", "NKE", "PG", "TRV", "UNH",
+        "V", "VZ", "WBA", "WMT", "RTX",
+    ]
+
+    print(f"\nLoading data for {len(stock_symbols)} stocks...")
+    stock_data_dict = load_all_stock_data(stock_symbols)
+
+    if len(stock_data_dict) == 0:
+        print("❌ No stock data loaded. Please check stock_data directory.")
+        return
+
+    reward_function = ReturnPlusDiversificationBonusVary()
+    run_experiment_vary(
+        stock_data_dict,
+        reward_function,
+        output_dir,
+        max_timesteps=MAX_TRAINING_TIMESTEPS,
+        seed=SEED,
+    )
+
+
+if __name__ == "__main__":
+    main()

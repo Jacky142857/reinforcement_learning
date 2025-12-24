@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Turnover-Weighted Return
+============================================================
+
+Reward Function: Turnover-Weighted Return
+TD3 Return: 49.70%
+Buy & Hold Return: 23.22%
+Outperformance: 26.49%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $149,703.28
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 19
+
+Max Drawdown (TD3): -8.44%
+
+Average Training Return: 21.377390
+Training Return Std Dev: 11.762735

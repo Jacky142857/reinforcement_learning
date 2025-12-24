@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Relative Strength Reward
+============================================================
+
+Reward Function: Relative Strength Reward
+PPO Return: -12.27%
+Buy & Hold Return: 23.22%
+Outperformance: -35.49%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $87,726.90
+Number of Training Episodes: 878
+Training Timesteps Used: 1,750,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -37.77%
+
+Average Training Return: 2.689203
+Training Return Std Dev: 0.804193

@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Differential Sharpe Ratio
+============================================================
+
+Reward Function: Differential Sharpe Ratio
+TD3 Return: 10.86%
+Buy & Hold Return: 23.22%
+Outperformance: -12.36%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $110,860.90
+Number of Training Episodes: 210
+Training Timesteps Used: 420,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -14.52%
+
+Average Training Return: -89.246901
+Training Return Std Dev: 67.506557

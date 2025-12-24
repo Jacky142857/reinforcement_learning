@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Risk-On Risk-Off Reward
+============================================================
+
+Reward Function: Risk-On Risk-Off Reward
+SAC Return: 35.97%
+Buy & Hold Return: 23.22%
+Outperformance: 12.76%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $135,974.56
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -9.91%
+
+Average Training Return: 26.809849
+Training Return Std Dev: 0.617872

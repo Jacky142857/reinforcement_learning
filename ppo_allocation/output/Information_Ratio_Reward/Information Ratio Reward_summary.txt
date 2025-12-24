@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Information Ratio Reward
+============================================================
+
+Reward Function: Information Ratio Reward
+PPO Return: 41.48%
+Buy & Hold Return: 23.22%
+Outperformance: 18.26%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $141,475.30
+Number of Training Episodes: 778
+Training Timesteps Used: 1,550,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -10.24%
+
+Average Training Return: 95.359551
+Training Return Std Dev: 50.412101

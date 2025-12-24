@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Sharpe-like Reward
+============================================================
+
+Reward Function: Sharpe-like Reward
+PPO Return: 29.63%
+Buy & Hold Return: 23.22%
+Outperformance: 6.41%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $129,627.43
+Number of Training Episodes: 778
+Training Timesteps Used: 1,550,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -17.17%
+
+Average Training Return: 251.778270
+Training Return Std Dev: 55.280238

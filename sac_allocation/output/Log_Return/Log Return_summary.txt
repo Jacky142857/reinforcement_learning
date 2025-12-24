@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Log Return
+============================================================
+
+Reward Function: Log Return
+SAC Return: 12.90%
+Buy & Hold Return: 23.22%
+Outperformance: -10.31%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $112,903.54
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -8.89%
+
+Average Training Return: 1.082209
+Training Return Std Dev: 0.373795

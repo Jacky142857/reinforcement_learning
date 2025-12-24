@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Log Return
+============================================================
+
+Reward Function: Log Return
+PPO Return: -7.59%
+Buy & Hold Return: 23.22%
+Outperformance: -30.80%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $92,412.72
+Number of Training Episodes: 1079
+Training Timesteps Used: 2,150,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -31.88%
+
+Average Training Return: 2.211732
+Training Return Std Dev: 0.580834

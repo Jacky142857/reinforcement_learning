@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Market Timing Reward
+============================================================
+
+Reward Function: Market Timing Reward
+PPO Return: -31.17%
+Buy & Hold Return: 23.22%
+Outperformance: -54.39%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $68,826.86
+Number of Training Episodes: 1255
+Training Timesteps Used: 2,500,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -35.83%
+
+Average Training Return: 3.818501
+Training Return Std Dev: 1.041775

@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Market Timing Reward
+============================================================
+
+Reward Function: Market Timing Reward
+TD3 Return: 28.94%
+Buy & Hold Return: 23.22%
+Outperformance: 5.73%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $128,943.83
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -12.25%
+
+Average Training Return: 3.522550
+Training Return Std Dev: 1.512959

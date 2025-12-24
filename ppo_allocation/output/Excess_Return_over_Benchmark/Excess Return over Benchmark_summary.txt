@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Excess Return over Benchmark
+============================================================
+
+Reward Function: Excess Return over Benchmark
+PPO Return: -35.02%
+Buy & Hold Return: 23.22%
+Outperformance: -58.24%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $64,980.07
+Number of Training Episodes: 878
+Training Timesteps Used: 1,750,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -45.16%
+
+Average Training Return: 1.664300
+Training Return Std Dev: 0.716915

@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Information Ratio Reward
+============================================================
+
+Reward Function: Information Ratio Reward
+SAC Return: 48.23%
+Buy & Hold Return: 23.22%
+Outperformance: 25.02%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $148,233.36
+Number of Training Episodes: 100
+Training Timesteps Used: 201,086
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -8.00%
+
+Average Training Return: 99.954630
+Training Return Std Dev: 97.970507

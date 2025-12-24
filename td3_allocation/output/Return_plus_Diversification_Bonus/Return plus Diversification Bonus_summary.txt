@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Return plus Diversification Bonus
+============================================================
+
+Reward Function: Return plus Diversification Bonus
+TD3 Return: 23.83%
+Buy & Hold Return: 23.22%
+Outperformance: 0.61%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $123,831.12
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 11
+
+Max Drawdown (TD3): -7.23%
+
+Average Training Return: 17.064410
+Training Return Std Dev: 1.824919

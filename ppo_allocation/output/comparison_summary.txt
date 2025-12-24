@@ -1,0 +1,28 @@
+================================================================================
+REWARD FUNCTION COMPARISON
+================================================================================
+
+Rank   Reward Function                          PPO Return   B&H Return   Outperf   
+--------------------------------------------------------------------------------
+1      Return minus Drawdown Penalty                 44.12%      23.22%    +20.90%
+2      Information Ratio Reward                      41.48%      23.22%    +18.26%
+3      Sharpe-like Reward                            29.63%      23.22%     +6.41%
+4      Calmar-like Reward                            28.62%      23.22%     +5.40%
+5      Momentum Exploitation Reward                  27.00%      23.22%     +3.78%
+6      CVaR Reward                                   22.96%      23.22%     -0.26%
+7      Regime-Adaptive Reward                        22.36%      23.22%     -0.85%
+8      Return plus Diversification Bonus             22.21%      23.22%     -1.01%
+9      Dynamic Rebalancing Reward                    14.23%      23.22%     -8.99%
+10     Normalized Profit                             10.49%      23.22%    -12.73%
+11     Turnover-Weighted Return                       9.24%      23.22%    -13.97%
+12     Trading Activity Bonus                         3.80%      23.22%    -19.42%
+13     Risk-Adjusted by Concentration                 2.82%      23.22%    -20.40%
+14     Tactical Allocation Reward                    -4.97%      23.22%    -28.19%
+15     Log Return                                    -7.59%      23.22%    -30.80%
+16     Raw Portfolio Return                          -8.76%      23.22%    -31.98%
+17     Relative Strength Reward                     -12.27%      23.22%    -35.49%
+18     Sortino-like Reward                          -20.05%      23.22%    -43.27%
+19     Market Timing Reward                         -31.17%      23.22%    -54.39%
+20     Risk-On Risk-Off Reward                      -33.44%      23.22%    -56.66%
+21     Excess Return over Benchmark                 -35.02%      23.22%    -58.24%
+22     Differential Sharpe Ratio                    -46.29%      23.22%    -69.51%

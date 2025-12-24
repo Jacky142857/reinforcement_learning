@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Risk-Adjusted by Concentration
+============================================================
+
+Reward Function: Risk-Adjusted by Concentration
+SAC Return: 0.56%
+Buy & Hold Return: 23.22%
+Outperformance: -22.66%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $100,561.41
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -13.12%
+
+Average Training Return: 20.546405
+Training Return Std Dev: 14.085932

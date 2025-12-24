@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Sharpe-like Reward
+============================================================
+
+Reward Function: Sharpe-like Reward
+TD3 Return: 25.65%
+Buy & Hold Return: 23.22%
+Outperformance: 2.43%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $125,648.77
+Number of Training Episodes: 210
+Training Timesteps Used: 420,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -12.15%
+
+Average Training Return: 581.634942
+Training Return Std Dev: 217.688359

@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Trading Activity Bonus
+============================================================
+
+Reward Function: Trading Activity Bonus
+PPO Return: 3.80%
+Buy & Hold Return: 23.22%
+Outperformance: -19.42%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $103,800.93
+Number of Training Episodes: 1079
+Training Timesteps Used: 2,150,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -28.33%
+
+Average Training Return: 74.182763
+Training Return Std Dev: 8.281998

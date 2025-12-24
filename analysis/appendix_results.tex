@@ -1,0 +1,80 @@
+\begin{longtable}{l l r r r r}
+\caption{Full experimental results.}\label{tab:full-results}\\
+\toprule
+ Algorithm & Reward & Final value ($\$) & Max drawdown (\%) & Outperformance (\%) & Training steps \
+\midrule
+\endfirsthead
+\toprule
+ Algorithm & Reward & Final value ($\$) & Max drawdown (\%) & Outperformance (\%) & Training steps \
+\midrule
+\endhead
+\bottomrule
+\endfoot
+ PPO & CVaR Reward & 122,957.21 & -17.34 & -0.26 & 1,550,000 \
+ PPO & Calmar-like Reward & 128,619.42 & -17.97 & 5.40 & 1,700,000 \
+ PPO & Online Sharpe Ratio & 53,707.65 & -52.03 & -69.51 & 1,550,000 \
+ PPO & Dynamic Rebalancing Reward & 114,225.52 & -15.26 & -8.99 & 1,550,000 \
+ PPO & Excess Return over Benchmark & 64,980.07 & -45.16 & -58.24 & 1,750,000 \
+ PPO & Information Ratio Reward & 141,475.30 & -10.24 & 18.26 & 1,550,000 \
+ PPO & Log Return & 92,412.72 & -31.88 & -30.80 & 2,150,000 \
+ PPO & Market Timing Reward & 68,826.86 & -35.83 & -54.39 & 2,500,000 \
+ PPO & Momentum Exploitation Reward & 126,999.20 & -16.16 & 3.78 & 1,950,000 \
+ PPO & Normalized Profit & 110,489.77 & -14.81 & -12.73 & 1,850,000 \
+ PPO & Opportunity Cost Reward & 100,127.01 & -21.84 & -23.09 &  \
+ PPO & Raw Portfolio Return & 91,241.05 & -27.34 & -31.98 & 2,100,000 \
+ PPO & Regime-Adaptive Reward & 122,363.30 & -19.95 & -0.85 & 2,450,000 \
+ PPO & Relative Strength Reward & 87,726.90 & -37.77 & -35.49 & 1,750,000 \
+ PPO & Return minus Drawdown Penalty & 144,117.30 & -10.28 & 20.90 & 1,550,000 \
+ PPO & Return plus Diversification Bonus & 122,209.75 & -16.90 & -1.01 & 1,550,000 \
+ PPO & Risk-Adjusted by Concentration & 123,914.57 & -15.85 & \phantom{-}\,0.70 & 1,550,000 \
+ PPO & Risk-On Risk-Off Reward & 66,558.00 & -38.77 & -56.66 & 2,050,000 \
+ PPO & Return over Rolling Volatility & 129,627.43 & -17.17 & 6.41 & 1,550,000 \
+ PPO & Sortino-like Reward & 79,947.69 & -29.11 & -43.27 & 1,800,000 \
+ PPO & Tactical Allocation Reward & 95,026.08 & -34.09 & -28.19 & 2,200,000 \
+ PPO & Trading Activity Bonus & 103,800.93 & -28.33 & -19.42 & 2,150,000 \
+ PPO & Turnover-Weighted Return & 109,241.65 & -28.31 & -13.97 & 2,500,000 \
+ SAC & CVaR Reward & 126,038.12 & -9.26 & 2.82 & 200,150 \
+ SAC & Calmar-like Reward & 138,742.34 & -13.40 & 15.53 & 200,150 \
+ SAC & Online Sharpe Ratio & 145,465.77 & -11.38 & 22.25 & 231,175 \
+ SAC & Dynamic Rebalancing Reward & 120,994.24 & -10.68 & -2.22 & 200,150 \
+ SAC & Excess Return over Benchmark & 141,933.28 & -9.32 & 18.72 & 200,150 \
+ SAC & Information Ratio Reward & 148,233.36 & -8.00 & 25.02 & 201,086 \
+ SAC & Log Return & 112,903.54 & -8.89 & -10.31 & 200,150 \
+ SAC & Market Timing Reward & 126,155.98 & -8.20 & 2.94 & 200,150 \
+ SAC & Momentum Exploitation Reward & 128,249.19 & -10.88 & 5.03 & 200,150 \
+ SAC & Normalized Profit & 111,950.49 & -15.26 & -11.27 & 200,150 \
+ SAC & Raw Portfolio Return & 137,502.40 & -8.78 & 14.29 & 200,150 \
+ SAC & Regime-Adaptive Reward & 130,656.96 & -13.82 & 7.44 & 200,150 \
+ SAC & Relative Strength Reward & 121,412.34 & -11.70 & -1.80 & 200,150 \
+ SAC & Return minus Drawdown Penalty & 123,158.24 & -9.56 & -0.06 & 200,150 \
+ SAC & Return plus Diversification Bonus & 126,039.79 & -7.75 & 2.82 & 200,150 \
+ SAC & Risk-Adjusted by Concentration & 100,561.41 & -13.12 & -22.66 & 200,150 \
+ SAC & Risk-On Risk-Off Reward & 135,974.56 & -9.91 & 12.76 & 200,150 \
+ SAC & Return over Rolling Volatility & 126,488.64 & -15.40 & 3.27 & 780,000 \
+ SAC & Sortino-like Reward & 130,751.18 & -11.30 & 7.53 & 200,150 \
+ SAC & Tactical Allocation Reward & 135,677.01 & -10.47 & 12.46 & 200,150 \
+ SAC & Trading Activity Bonus & 88,225.18 & -24.43 & -34.99 & 200,150 \
+ SAC & Turnover-Weighted Return & 150,925.79 & -11.44 & 27.71 & 200,150 \
+ TD3 & CVaR Reward & 116,700.77 & -11.09 & -6.52 & 200,150 \
+ TD3 & Calmar-like Reward & 113,055.03 & -13.30 & -10.16 & 200,313 \
+ TD3 & Online Sharpe Ratio & 110,860.90 & -14.52 & -12.36 & 420,000 \
+ TD3 & Dynamic Rebalancing Reward & 121,791.25 & -8.73 & -1.43 & 200,150 \
+ TD3 & Excess Return over Benchmark & 135,601.51 & -7.81 & 12.38 & 200,150 \
+ TD3 & Information Ratio Reward & 114,955.75 & -9.74 & -8.26 & 201,666 \
+ TD3 & Log Return & 120,129.53 & -10.57 & -3.09 & 200,150 \
+ TD3 & Market Timing Reward & 128,943.83 & -12.25 & 5.73 & 200,150 \
+ TD3 & Momentum Exploitation Reward & 123,534.43 & -10.76 & 0.32 & 200,150 \
+ TD3 & Normalized Profit & 140,470.36 & -7.59 & 17.25 & 200,499 \
+ TD3 & Raw Portfolio Return & 138,344.38 & -12.47 & 15.13 & 200,150 \
+ TD3 & Regime-Adaptive Reward & 106,372.14 & -13.54 & -16.84 & 200,150 \
+ TD3 & Relative Strength Reward & 110,641.97 & -10.76 & -12.57 & 200,150 \
+ TD3 & Return minus Drawdown Penalty & 129,593.98 & -9.50 & 6.38 & 200,150 \
+ TD3 & Return plus Diversification Bonus & 123,831.12 & -7.23 & 0.61 & 200,150 \
+ TD3 & Risk-Adjusted by Concentration & 117,432.76 & -9.20 & -5.78 & 201,143 \
+ TD3 & Risk-On Risk-Off Reward & 107,322.91 & -12.52 & -15.89 & 200,150 \
+ TD3 & Return over Rolling Volatility & 125,648.77 & -12.15 & 2.43 & 420,000 \
+ TD3 & Sortino-like Reward & 136,254.62 & -7.70 & 13.04 & 200,150 \
+ TD3 & Tactical Allocation Reward & 131,593.26 & -11.04 & 8.38 & 200,150 \
+ TD3 & Trading Activity Bonus & 119,956.03 & -8.20 & -3.26 & 200,150 \
+ TD3 & Turnover-Weighted Return & 149,703.28 & -8.44 & 26.49 & 200,150 \
+\end{longtable}

@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Differential Sharpe Ratio
+============================================================
+
+Reward Function: Differential Sharpe Ratio
+SAC Return: 45.47%
+Buy & Hold Return: 23.22%
+Outperformance: 22.25%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $145,465.77
+Number of Training Episodes: 116
+Training Timesteps Used: 231,175
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -11.38%
+
+Average Training Return: -33.892404
+Training Return Std Dev: 34.822804

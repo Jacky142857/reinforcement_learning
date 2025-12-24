@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Turnover-Weighted Return
+============================================================
+
+Reward Function: Turnover-Weighted Return
+PPO Return: 9.24%
+Buy & Hold Return: 23.22%
+Outperformance: -13.97%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $109,241.65
+Number of Training Episodes: 1255
+Training Timesteps Used: 2,500,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -28.31%
+
+Average Training Return: 74.798010
+Training Return Std Dev: 7.827278

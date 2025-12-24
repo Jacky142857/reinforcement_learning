@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Return minus Drawdown Penalty
+============================================================
+
+Reward Function: Return minus Drawdown Penalty
+SAC Return: 23.16%
+Buy & Hold Return: 23.22%
+Outperformance: -0.06%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $123,158.24
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -9.56%
+
+Average Training Return: -37.329173
+Training Return Std Dev: 10.088632

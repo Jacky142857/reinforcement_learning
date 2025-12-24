@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Sortino-like Reward
+============================================================
+
+Reward Function: Sortino-like Reward
+SAC Return: 30.75%
+Buy & Hold Return: 23.22%
+Outperformance: 7.53%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $130,751.18
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -11.30%
+
+Average Training Return: -5.294829
+Training Return Std Dev: 1.119792

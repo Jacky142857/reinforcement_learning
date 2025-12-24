@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Return plus Diversification Bonus
+============================================================
+
+Reward Function: Return plus Diversification Bonus
+PPO Return: 22.21%
+Buy & Hold Return: 23.22%
+Outperformance: -1.01%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $122,209.75
+Number of Training Episodes: 778
+Training Timesteps Used: 1,550,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -16.90%
+
+Average Training Return: 12.477245
+Training Return Std Dev: 2.992191

@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Tactical Allocation Reward
+============================================================
+
+Reward Function: Tactical Allocation Reward
+TD3 Return: 31.59%
+Buy & Hold Return: 23.22%
+Outperformance: 8.38%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $131,593.26
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -11.04%
+
+Average Training Return: 4.013915
+Training Return Std Dev: 2.316150

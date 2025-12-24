@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Turnover-Weighted Return
+============================================================
+
+Reward Function: Turnover-Weighted Return
+SAC Return: 50.93%
+Buy & Hold Return: 23.22%
+Outperformance: 27.71%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $150,925.79
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -11.44%
+
+Average Training Return: 45.649260
+Training Return Std Dev: 11.450709

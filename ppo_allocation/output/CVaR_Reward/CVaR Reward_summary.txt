@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: CVaR Reward
+============================================================
+
+Reward Function: CVaR Reward
+PPO Return: 22.96%
+Buy & Hold Return: 23.22%
+Outperformance: -0.26%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $122,957.21
+Number of Training Episodes: 778
+Training Timesteps Used: 1,550,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -17.34%
+
+Average Training Return: -23.091211
+Training Return Std Dev: 1.633080

@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Normalized Profit
+============================================================
+
+Reward Function: Normalized Profit
+SAC Return: 11.95%
+Buy & Hold Return: 23.22%
+Outperformance: -11.27%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $111,950.49
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -15.26%
+
+Average Training Return: 2.467302
+Training Return Std Dev: 1.732509

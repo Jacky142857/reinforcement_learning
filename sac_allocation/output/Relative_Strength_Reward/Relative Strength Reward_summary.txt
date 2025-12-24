@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Relative Strength Reward
+============================================================
+
+Reward Function: Relative Strength Reward
+SAC Return: 21.41%
+Buy & Hold Return: 23.22%
+Outperformance: -1.80%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $121,412.34
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -11.70%
+
+Average Training Return: 1.548255
+Training Return Std Dev: 0.709043

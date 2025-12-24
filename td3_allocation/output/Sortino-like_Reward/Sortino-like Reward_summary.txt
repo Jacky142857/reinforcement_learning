@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Sortino-like Reward
+============================================================
+
+Reward Function: Sortino-like Reward
+TD3 Return: 36.25%
+Buy & Hold Return: 23.22%
+Outperformance: 13.04%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $136,254.62
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -7.70%
+
+Average Training Return: -3.585949
+Training Return Std Dev: 2.174383

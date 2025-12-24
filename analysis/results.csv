@@ -1,0 +1,68 @@
+algorithm,reward,final_portfolio_value,max_drawdown_pct,outperformance_pct,training_timesteps
+PPO,CVaR Reward,122957.21,-17.34,-0.26,1550000.0
+PPO,Calmar-like Reward,128619.42,-17.97,5.4,1700000.0
+PPO,Online Sharpe Ratio,53707.65,-52.03,-69.51,1550000.0
+PPO,Dynamic Rebalancing Reward,114225.52,-15.26,-8.99,1550000.0
+PPO,Excess Return over Benchmark,64980.07,-45.16,-58.24,1750000.0
+PPO,Information Ratio Reward,141475.3,-10.24,18.26,1550000.0
+PPO,Log Return,92412.72,-31.88,-30.8,2150000.0
+PPO,Market Timing Reward,68826.86,-35.83,-54.39,2500000.0
+PPO,Momentum Exploitation Reward,126999.2,-16.16,3.78,1950000.0
+PPO,Normalized Profit,110489.77,-14.81,-12.73,1850000.0
+PPO,Opportunity Cost Reward,100127.01,-21.84,-23.09,
+PPO,Raw Portfolio Return,91241.05,-27.34,-31.98,2100000.0
+PPO,Regime-Adaptive Reward,122363.3,-19.95,-0.85,2450000.0
+PPO,Relative Strength Reward,87726.9,-37.77,-35.49,1750000.0
+PPO,Return minus Drawdown Penalty,144117.3,-10.28,20.9,1550000.0
+PPO,Return plus Diversification Bonus,122209.75,-16.9,-1.01,1550000.0
+PPO,Risk-Adjusted by Concentration,123914.57,-15.85,0.70,1550000.0
+PPO,Risk-On Risk-Off Reward,66558.0,-38.77,-56.66,2050000.0
+PPO,Return over Rolling Volatility,129627.43,-17.17,6.41,1550000.0
+PPO,Sortino-like Reward,79947.69,-29.11,-43.27,1800000.0
+PPO,Tactical Allocation Reward,95026.08,-34.09,-28.19,2200000.0
+PPO,Trading Activity Bonus,103800.93,-28.33,-19.42,2150000.0
+PPO,Turnover-Weighted Return,109241.65,-28.31,-13.97,2500000.0
+SAC,CVaR Reward,126038.12,-9.26,2.82,200150.0
+SAC,Calmar-like Reward,138742.34,-13.4,15.53,200150.0
+SAC,Online Sharpe Ratio,145465.77,-11.38,22.25,231175.0
+SAC,Dynamic Rebalancing Reward,120994.24,-10.68,-2.22,200150.0
+SAC,Excess Return over Benchmark,141933.28,-9.32,18.72,200150.0
+SAC,Information Ratio Reward,148233.36,-8.0,25.02,201086.0
+SAC,Log Return,112903.54,-8.89,-10.31,200150.0
+SAC,Market Timing Reward,126155.98,-8.2,2.94,200150.0
+SAC,Momentum Exploitation Reward,128249.19,-10.88,5.03,200150.0
+SAC,Normalized Profit,111950.49,-15.26,-11.27,200150.0
+SAC,Raw Portfolio Return,137502.4,-8.78,14.29,200150.0
+SAC,Regime-Adaptive Reward,130656.96,-13.82,7.44,200150.0
+SAC,Relative Strength Reward,121412.34,-11.7,-1.8,200150.0
+SAC,Return minus Drawdown Penalty,123158.24,-9.56,-0.06,200150.0
+SAC,Return plus Diversification Bonus,126039.79,-7.75,2.82,200150.0
+SAC,Risk-Adjusted by Concentration,100561.41,-13.12,-22.66,200150.0
+SAC,Risk-On Risk-Off Reward,135974.56,-9.91,12.76,200150.0
+SAC,Return over Rolling Volatility,126488.64,-15.4,3.27,780000.0
+SAC,Sortino-like Reward,130751.18,-11.3,7.53,200150.0
+SAC,Tactical Allocation Reward,135677.01,-10.47,12.46,200150.0
+SAC,Trading Activity Bonus,88225.18,-24.43,-34.99,200150.0
+SAC,Turnover-Weighted Return,150925.79,-11.44,27.71,200150.0
+TD3,CVaR Reward,116700.77,-11.09,-6.52,200150.0
+TD3,Calmar-like Reward,113055.03,-13.3,-10.16,200313.0
+TD3,Online Sharpe Ratio,110860.9,-14.52,-12.36,420000.0
+TD3,Dynamic Rebalancing Reward,121791.25,-8.73,-1.43,200150.0
+TD3,Excess Return over Benchmark,135601.51,-7.81,12.38,200150.0
+TD3,Information Ratio Reward,114955.75,-9.74,-8.26,201666.0
+TD3,Log Return,120129.53,-10.57,-3.09,200150.0
+TD3,Market Timing Reward,128943.83,-12.25,5.73,200150.0
+TD3,Momentum Exploitation Reward,123534.43,-10.76,0.32,200150.0
+TD3,Normalized Profit,140470.36,-7.59,17.25,200499.0
+TD3,Raw Portfolio Return,138344.38,-12.47,15.13,200150.0
+TD3,Regime-Adaptive Reward,106372.14,-13.54,-16.84,200150.0
+TD3,Relative Strength Reward,110641.97,-10.76,-12.57,200150.0
+TD3,Return minus Drawdown Penalty,129593.98,-9.5,6.38,200150.0
+TD3,Return plus Diversification Bonus,123831.12,-7.23,0.61,200150.0
+TD3,Risk-Adjusted by Concentration,117432.76,-9.20,-5.78,201143.0
+TD3,Risk-On Risk-Off Reward,107322.91,-12.52,-15.89,200150.0
+TD3,Return over Rolling Volatility,125648.77,-12.15,2.43,420000.0
+TD3,Sortino-like Reward,136254.62,-7.7,13.04,200150.0
+TD3,Tactical Allocation Reward,131593.26,-11.04,8.38,200150.0
+TD3,Trading Activity Bonus,119956.03,-8.2,-3.26,200150.0
+TD3,Turnover-Weighted Return,149703.28,-8.44,26.49,200150.0

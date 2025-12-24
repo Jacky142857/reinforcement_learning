@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Sortino-like Reward
+============================================================
+
+Reward Function: Sortino-like Reward
+PPO Return: -20.05%
+Buy & Hold Return: 23.22%
+Outperformance: -43.27%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $79,947.69
+Number of Training Episodes: 904
+Training Timesteps Used: 1,800,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -29.11%
+
+Average Training Return: -3.401767
+Training Return Std Dev: 1.190763

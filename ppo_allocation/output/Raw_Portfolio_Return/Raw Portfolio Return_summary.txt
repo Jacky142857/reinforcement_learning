@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Raw Portfolio Return
+============================================================
+
+Reward Function: Raw Portfolio Return
+PPO Return: -8.76%
+Buy & Hold Return: 23.22%
+Outperformance: -31.98%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $91,241.05
+Number of Training Episodes: 1054
+Training Timesteps Used: 2,100,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -27.34%
+
+Average Training Return: 2.434653
+Training Return Std Dev: 0.605282

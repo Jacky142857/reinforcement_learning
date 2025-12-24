@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Trading Activity Bonus
+============================================================
+
+Reward Function: Trading Activity Bonus
+TD3 Return: 19.96%
+Buy & Hold Return: 23.22%
+Outperformance: -3.26%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $119,956.03
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 17
+
+Max Drawdown (TD3): -8.20%
+
+Average Training Return: 21.081435
+Training Return Std Dev: 11.830858

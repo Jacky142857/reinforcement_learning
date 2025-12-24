@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Dynamic Rebalancing Reward
+============================================================
+
+Reward Function: Dynamic Rebalancing Reward
+TD3 Return: 21.79%
+Buy & Hold Return: 23.22%
+Outperformance: -1.43%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $121,791.25
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -8.73%
+
+Average Training Return: 47.130528
+Training Return Std Dev: 13.236380

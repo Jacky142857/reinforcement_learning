@@ -1,0 +1,104 @@
+Slide 1: Title & Speaker
+Content:
+- Title: "Reward Function Design and Evaluation in RL for Portfolio Allocation"
+- Subtitle: Thesis presentation | National University of Singapore | Nov 2025
+- Presenter: Bian Yuqi | Supervisor: Dr. Akshay Narayan
+Transcript:
+"Good [morning/afternoon], everyone. I'm Bian Yuqi from the National University of Singapore, and today I'll present my work on reward function design and evaluation in reinforcement learning for portfolio allocation, supervised by Dr. Akshay Narayan."
+
+Slide 2: Motivation & Problem Statement
+Content:
+- 73% of US equity volume now algorithmic; competitive edge needed (Intro)
+- ML prediction struggles: low signal-to-noise, non-stationarity, correlation vs causation
+- RL offers sequential decision-making with feedback loop suited for trading
+- Goal: benchmark how reward shaping influences portfolio RL performance
+Transcript:
+"Algorithmic trading already accounts for roughly seventy-three percent of US equity volume, so anyone deploying a systematic strategy needs a clear edge. Traditional machine learning that just predicts prices runs into low signal-to-noise ratios, non-stationary regimes, and purely correlational patterns. Reinforcement learning instead treats trading as a sequential decision process where we optimize actions directly from reward feedback. This study asks: how much does the reward function itself dictate an RL portfolio allocator's performance?"
+
+Slide 3: Literature Landscape
+Content:
+- Early RL finance work: Moody & Saffell, EIIE crypto portfolios, DDPG improvements
+- Discrete-action DQN variants run into exponential action blow-up for portfolios
+- Need for continuous-action actor-critic methods (PPO, SAC, TD3)
+- Research gap: systematic comparison of reward designs across modern actor-critic agents
+Transcript:
+"Prior work ranges from Moody and Saffell's first RL trading system to Jiang et al.'s EIIE architecture for crypto portfolios and Liu et al.'s DDPG improvements. But discrete-action approaches like dueling DQN run into an exponential action space once we have dozens of assets, and even coarse discretization doesn't help. That pushes us toward continuous actor-critic methods such as PPO, SAC, and TD3. What's missing is a systematic look at how different reward shapes behave across these algorithms."
+
+Slide 4: Portfolio Environment Overview
+Content:
+- Asset universe: Dow 30 + cash; decision time t features include returns, MA divergences, volatility, RSI, previous allocations, value ratio
+- Action space: logits in [-10,10], softmax to simplex including cash weight
+- Reward library configurable per episode (risk-adjusted, downside, momentum, diversification)
+- Diagram: RL pipeline (Figure 1)
+Transcript:
+"We trade the Dow Jones thirty constituents plus a cash asset. Each timestep the agent receives engineered features per stock—daily return, two moving-average divergences, realized volatility, and RSI—along with the previous allocations and scaled portfolio value. The actor outputs logits clipped between minus and plus ten, and a softmax enforces budget-feasible allocations with cash as the last component. Rewards come from a plug-and-play library ranging from raw returns to diversification incentives, and the pipeline looks like the diagram in Figure one."
+
+Slide 5: Algorithm Selection & Exclusions
+Content:
+- Excluded: discrete DQN family (3^N action explosion) and pure policy gradients (non-additive rewards bias REINFORCE)
+- Included: PPO (Gaussian policy + GAE), SAC (entropy-regularized, twin critics), TD3 (deterministic actor, target smoothing)
+- Shared allocator and feature pipeline to isolate reward differences
+Transcript:
+"We exclude discrete DQN-style methods because with thirty assets and three choices per asset you face three-to-the-thirty actions—computationally impossible. Pure policy gradients like REINFORCE also drop out because many of our objectives, such as Sharpe and drawdown penalties, are non-additive over timesteps and would introduce biased gradients. Instead we evaluate PPO with GAE, SAC with entropy regularization and twin critics, and TD3 with deterministic policy updates and target smoothing. Importantly, all agents share the same observation encoder and softmax allocator so that differences stem from the reward shaping."
+
+Slide 6: Reward Taxonomy
+Content:
+- Absolute/relative return rewards: raw return, log return, normalized profit, excess vs equal-weight benchmark
+- Risk-adjusted rewards: return over rolling volatility, online Sharpe, information ratio, concentration penalties
+- Downside control: Sortino-like, return minus drawdown penalty, Calmar-like, CVaR objective
+- Cross-sectional/momentum: momentum exploitation, regime-adaptive, risk-on/off, diversification bonus, turnover-weighted
+Transcript:
+"The reward designs fall into four buckets. First are absolute or relative return metrics like raw and log returns, normalized profit, and excess return versus an equal-weight Dow benchmark. Second are risk-adjusted metrics such as return divided by rolling volatility, online Sharpe, information ratios, and concentration-penalized rewards. Third we have downside protection via Sortino-like asymmetry, return minus drawdown penalties, Calmar-style ratios, and CVaR punishments. Finally, cross-sectional and momentum-aware rewards encourage turnover-weighted profits, tactical regime switches, and diversification bonuses."
+
+Slide 7: Experimental Setup
+Content:
+- Data: DJIA daily bars, no transaction costs/slippage, risk-free leg at 3% annualized
+- Training: PPO on-policy rollouts (up to 2.5M steps), SAC/TD3 off-policy with replay (~200k-780k steps)
+- Evaluation metrics: terminal value, outperformance vs buy-and-hold, maximum drawdown, convergence curves
+- Figure references: best/worst return plots (Figures 2 & 3)
+Transcript:
+"Experiments use daily Dow components with a fixed three percent annualized risk-free rate feeding the cash asset. We assume zero transaction costs and perfect liquidity, so this is an optimistic backtest. PPO trains on-policy batches up to about two and a half million timesteps, while SAC and TD3 rely on replay buffers with roughly two hundred thousand steps per reward, extending to seven hundred eighty thousand for some Sharpe-based runs. Evaluation tracks terminal wealth, percentage outperformance relative to buy-and-hold, maximum drawdown, and we visualize trajectories via the best and worst return plots shown in Figures two and three."
+
+Slide 8: Top-Line Results
+Content:
+- SAC best reward: Turnover-Weighted Return reaches $150,926 (+27.7%) with -11.4% drawdown
+- TD3 close second: Turnover-Weighted Return $149,703 (+26.5%) with -8.4% drawdown
+- PPO lagging: Return minus Drawdown Penalty tops $144,117 (+20.9%); most rewards underperform benchmark
+- Table reference: Table 1 (top rewards)
+Transcript:
+"Starting with the winners, SAC using the turnover-weighted return reward compounds capital to about one hundred fifty-one thousand dollars, twenty-eight percent above buy-and-hold, while holding drawdowns to eleven percent. TD3 with the same reward lands just behind at one hundred forty-nine thousand with an eight percent drawdown. PPO's best case—return minus drawdown penalty—hits one hundred forty-four thousand, but most PPO rewards still underperform the benchmark. Table one summarizes these best-in-class configurations."
+
+Slide 9: Stress Cases & Diagnostics
+Content:
+- PPO worst: Online Sharpe reward collapses to $53,708 (-69.5% vs benchmark)
+- SAC worst: Trading Activity Bonus still $88,225 (-35%) but drawdowns shallower
+- TD3 worst: Regime-Adaptive reward $106,372 (-16.8%)
+- Convergence insight: Sharpe-style rewards destabilize off-policy replay (Figure: online Sharpe convergence plot)
+Transcript:
+"On the downside, PPO paired with the online Sharpe reward loses nearly half the capital, finishing at roughly fifty-four thousand dollars, almost seventy percent below buy-and-hold. SAC's worst case, the trading activity bonus, still retains eighty-eight thousand but trails by thirty-five percent, while TD3's poorest performer—the regime-adaptive reward—lands at about one hundred six thousand, sixteen percent below the benchmark. The Sharpe-linked objectives explain much of this instability: their volatility denominators drift inside the replay buffer, which we visualize on the convergence plots."
+
+Slide 10: Key Takeaways
+Content:
+- Reward design impacts performance more than algorithm choice within actor-critic family
+- Off-policy methods (SAC, TD3) dominate due to better sample efficiency and sustained market exposure
+- PPO tends to hide in cash when rewards penalize risk, leading to missed upside
+- Match reward to desk objective: turnover-aware for aggressive desks, drawdown-penalized for risk limits
+Transcript:
+"The main lesson is that reward sculpting matters more than swapping actor-critic architectures. SAC and TD3 generally win because replay and entropy help them stay invested, whereas PPO's on-policy updates and entropy decay let it retreat into cash whenever a reward punishes volatility, sacrificing upside. So the practical advice is to start with the desk's objective—turnover governance, drawdown caps, or pure alpha—and then choose the reward accordingly rather than obsessing over algorithm tweaks."
+
+Slide 11: Limitations & Future Work
+Content:
+- Universe bias: Dow 30 blue-chip focus may understate cash-heavy rewards; extend to multi-asset regimes
+- Trading realism: zero cost/slippage assumption; need to model friction, liquidity, regulatory limits
+- Reproducibility: deterministic settings insufficient; containerize stack, publish checkpoints, run multi-seed stats
+- Next steps: broaden datasets, incorporate transaction costs, deliver containerized pipeline
+Transcript:
+"There are three main caveats. First, trading only the Dow thirty biases results toward buy-and-hold success and probably underestimates the value of defensive, cash-heavy rewards, so we should extend to mixed asset classes and market regimes. Second, the backtests assume zero commissions, spreads, or liquidity constraints, which is unrealistic. We need proportional and quadratic cost models plus regulatory limits. Third, reproducibility is fragile even with deterministic flags, so packaging the entire software stack, publishing checkpoints, and reporting multi-seed averages would strengthen conclusions. These are the next steps on the roadmap."
+
+Slide 12: Conclusion & Discussion
+Content:
+- Reward-function-first workflow for RL portfolio design
+- Highlight best algorithm–reward pairs (TD3 + Turnover-weighted, SAC + Information Ratio)
+- Invite questions and collaborative extensions (e.g., deployment, live testing)
+Transcript:
+"To wrap up, designing the right reward should be the first lever for RL portfolio allocation. The most actionable pairs we found were TD3 with turnover-weighted returns for aggressive but controlled growth, and SAC with information-ratio style rewards for balanced risk-adjusted performance. I'm excited to hear your questions and to discuss how we can extend this into more realistic deployments or live tests. Thank you."

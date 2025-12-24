@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Return minus Drawdown Penalty
+============================================================
+
+Reward Function: Return minus Drawdown Penalty
+TD3 Return: 29.59%
+Buy & Hold Return: 23.22%
+Outperformance: 6.38%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $129,593.98
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (TD3): -9.50%
+
+Average Training Return: -25.693126
+Training Return Std Dev: 12.088249

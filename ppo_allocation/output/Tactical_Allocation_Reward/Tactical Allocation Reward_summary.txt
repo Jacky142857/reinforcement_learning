@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Tactical Allocation Reward
+============================================================
+
+Reward Function: Tactical Allocation Reward
+PPO Return: -4.97%
+Buy & Hold Return: 23.22%
+Outperformance: -28.19%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $95,026.08
+Number of Training Episodes: 1104
+Training Timesteps Used: 2,200,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -34.09%
+
+Average Training Return: 5.124689
+Training Return Std Dev: 1.657412

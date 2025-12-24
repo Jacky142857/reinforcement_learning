@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Regime-Adaptive Reward
+============================================================
+
+Reward Function: Regime-Adaptive Reward
+SAC Return: 30.66%
+Buy & Hold Return: 23.22%
+Outperformance: 7.44%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $130,656.96
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -13.82%
+
+Average Training Return: 42.079117
+Training Return Std Dev: 9.101235

@@ -1,0 +1,19 @@
+============================================================
+RESULTS SUMMARY: Opportunity Cost Reward
+============================================================
+
+Reward Function: Opportunity Cost Reward
+PPO Return: 0.13%
+Buy & Hold Return: 23.22%
+Outperformance: -23.09%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $100,127.01
+Number of Training Episodes: 502
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -21.84%
+
+Average Training Return: -3.182768
+Training Return Std Dev: 0.738290

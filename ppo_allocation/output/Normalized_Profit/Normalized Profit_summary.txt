@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Normalized Profit
+============================================================
+
+Reward Function: Normalized Profit
+PPO Return: 10.49%
+Buy & Hold Return: 23.22%
+Outperformance: -12.73%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $110,489.77
+Number of Training Episodes: 929
+Training Timesteps Used: 1,850,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -14.81%
+
+Average Training Return: 6.783344
+Training Return Std Dev: 3.505741

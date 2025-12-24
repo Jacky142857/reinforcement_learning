@@ -1,0 +1,23 @@
+digraph RLPortfolioPipeline {
+    rankdir=TB;
+    labelloc="t";
+    label="RL Portfolio Training Loop";
+    fontsize=12;
+    nodesep=0.9;
+    ranksep=1.4;
+
+    node [shape=rectangle, style="rounded,filled", fillcolor="#f5f5f5", fontsize=11, width=3.0, height=1.0];
+
+    market_data      [label="Market Data\n(Prices, Volumes, Factors)"];
+    feature_engineer [label="Feature Engineering\n(Returns, Indicators, Volatility)"];
+    observation      [label="Observation Vector\n(o_t)"];
+    policy_network   [label="Policy / Value Networks\n(Actor-Critic)"];
+    logits_softmax   [label="Softmax Allocation\n(pi_t)"];
+    execution        [label="Portfolio Execution\n& Environment"];
+    reward_block     [label="Reward Function\n(Sharpe, CVaR, etc.)"];
+    replay_update    [label="Trajectory Buffer\n/ Policy Update"];
+
+    market_data -> feature_engineer -> observation -> policy_network -> logits_softmax -> execution -> reward_block -> replay_update;
+    replay_update -> policy_network [label="Gradients", fontsize=9];
+    execution -> observation [label="Next observation", fontsize=9];
+}

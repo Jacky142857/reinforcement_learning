@@ -1,0 +1,21 @@
+============================================================
+RESULTS SUMMARY: Market Timing Reward
+============================================================
+
+Reward Function: Market Timing Reward
+SAC Return: 26.16%
+Buy & Hold Return: 23.22%
+Outperformance: 2.94%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $126,155.98
+Number of Training Episodes: 100
+Training Timesteps Used: 200,150
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+Stocks Not Traded (Testing): 0
+
+Max Drawdown (SAC): -8.20%
+
+Average Training Return: 2.110524
+Training Return Std Dev: 1.125579

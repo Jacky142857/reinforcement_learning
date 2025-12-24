@@ -1,0 +1,20 @@
+============================================================
+RESULTS SUMMARY: Return minus Drawdown Penalty
+============================================================
+
+Reward Function: Return minus Drawdown Penalty
+PPO Return: 44.12%
+Buy & Hold Return: 23.22%
+Outperformance: 20.90%
+
+Initial Portfolio Value: $100,000.00
+Final Portfolio Value: $144,117.30
+Number of Training Episodes: 778
+Training Timesteps Used: 1,550,000
+Warmup Steps (no trading): 20
+Trading Steps Evaluated: 483
+
+Max Drawdown (PPO): -10.28%
+
+Average Training Return: -38.325535
+Training Return Std Dev: 10.825589
