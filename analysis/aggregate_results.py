@@ -159,13 +159,13 @@ def main() -> None:
     parser.add_argument(
         "--base-dir",
         type=Path,
-        default=Path(__file__).resolve().parent,
+        default=Path(__file__).resolve().parent.parent,
         help="Repository base directory containing the allocation outputs.",
     )
     parser.add_argument(
         "--to-csv",
         type=Path,
-        default=None,
+        default=Path(__file__).resolve().parent / "results.csv",
         help="Optional path to store the aggregated results as CSV.",
     )
 

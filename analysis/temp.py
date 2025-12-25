@@ -8,8 +8,8 @@ from typing import Dict, List, Optional
 import matplotlib.pyplot as plt
 
 
-DATA_PATH = Path("results.csv")
-OUTPUT_PATH = Path("training_timesteps_mean.png")
+DATA_PATH = Path(__file__).resolve().parent / "results.csv"
+OUTPUT_PATH = Path(__file__).resolve().parent / "training_timesteps_mean.png"
 ALGORITHMS = ["SAC", "TD3", "PPO"]
 BAR_COLOR = "#9ecae1"
 OFF_POLICY_BASELINE = 200_150

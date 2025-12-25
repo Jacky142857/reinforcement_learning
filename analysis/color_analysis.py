@@ -62,7 +62,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--root",
         type=Path,
-        default=Path(__file__).resolve().parent,
+        default=Path(__file__).resolve().parent.parent,
         help="Repository root that contains *_allocation directories.",
     )
     parser.add_argument(
@@ -139,7 +139,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("cash_blue_presence.csv"),
+        default=Path("analysis/cash_blue_presence.csv"),
         help="CSV file to write the summary into (relative to root by default).",
     )
     return parser.parse_args()

@@ -6,7 +6,7 @@ def load_all_stock_data(stock_symbols):
     """Load all stock data from stock_data directory"""
     stock_data_dict = {}
     script_dir = Path(__file__).parent
-    root_dir = script_dir
+    root_dir = script_dir.parent
     stock_data_dir = root_dir / 'stock_data'
 
     for symbol in stock_symbols:

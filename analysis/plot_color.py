@@ -26,13 +26,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--csv",
         type=Path,
-        default=Path("cash_blue_presence.csv"),
+        default=Path(__file__).resolve().parent / "cash_blue_presence.csv",
         help="CSV file produced by color_analysis.py.",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("color_analysis"),
+        default=Path(__file__).resolve().parent / "color_analysis",
         help="Directory to store the generated summary plots.",
     )
     return parser.parse_args()

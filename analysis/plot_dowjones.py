@@ -143,13 +143,13 @@ def main() -> None:
     parser.add_argument(
         "--data-dir",
         type=Path,
-        default=Path("stock_data"),
+        default=Path(__file__).resolve().parent.parent / "stock_data",
         help="Directory containing *_data.csv files for Dow constituents.",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("figures/dow_buy_hold.png"),
+        default=Path(__file__).resolve().parent / "figures" / "dow_buy_hold.png",
         help="Path to save the generated figure (default: figures/dow_buy_hold.png). "
         "Pass an empty string to display instead of saving.",
     )

@@ -95,13 +95,13 @@ def main() -> None:
     parser.add_argument(
         "--csv-path",
         type=Path,
-        default=Path("results.csv"),
+        default=Path(__file__).resolve().parent / "results.csv",
         help="Path to results.csv (default: ./results.csv).",
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("drawdown_frontier.png"),
+        default=Path(__file__).resolve().parent / "drawdown_frontier.png",
         help="Where to store the plot (default: ./drawdown_frontier.png). "
         "Pass an empty string to display instead of saving.",
     )
